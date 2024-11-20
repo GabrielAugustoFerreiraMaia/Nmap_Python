@@ -95,9 +95,38 @@ class ScannerGUI:
         resposta = requests.get(url, headers=headers)
         if resposta.status_code == 200:
             resultado = resposta.json()
-            self.text_result.insert(tk.END, json.dumps(resultado, indent=4))
+        
+            # Tratamento da resposta
+            if 'data' in resultado and 'attributes' in resultado['data']:
+                atributos = resultado['data']['attributes']
+                if 'results' in atributos:
+                    resultados = atributos['results']
+                    self.text_result.insert(tk.END, "Resultados da Análise:\n")
+                
+                    # Verificar se algum antivírus detectou malware
+                    malwares_detectados = []
+                    for antivirus, resultado_antivirus in resultados.items():
+                        if resultado_antivirus['category'] == 'malicious':
+                            malwares_detectados.append(antivirus)
+                
+                    if malwares_detectados:
+                        self.text_result.insert(tk.END, f"Malwares detectados por: {', '.join(malwares_detectados)}\n")
+                    else:
+                        self.text_result.insert(tk.END, "Nenhum malware detectado.\n")
+                
+                    # Verificar estatísticas de análise
+                    if 'stats' in atributos:
+                        estatisticas = atributos['stats']
+                        self.text_result.insert(tk.END, f"Estatísticas de Análise:\n")
+                        self.text_result.insert(tk.END, f"Maliciosos: {estatisticas['malicious']}\n")
+                        self.text_result.insert(tk.END, f"Suspeitos: {estatisticas['suspicious']}\n")
+                        self.text_result.insert(tk.END, f"Não detectados: {estatisticas['undetected']}\n")
+                else:
+                    self.text_result.insert(tk.END, "Nenhum resultado encontrado.\n")
+            else:
+                self.text_result.insert(tk.END, "Erro ao processar resposta.\n")
         else:
-            self.text_result.insert(tk.END, "Erro ao buscar análise")
+            self.text_result.insert(tk.END, "Erro ao buscar análise.\n")
 
     def analise_trafego(self):
         # Implementar análise de tráfego
