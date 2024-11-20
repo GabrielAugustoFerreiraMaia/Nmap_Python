@@ -69,7 +69,7 @@ class ScannerGUI:
     def detecao_malware(self):
         arquivo = filedialog.askopenfilename(title="Selecione o arquivo")
         if arquivo:
-            api_key = "a6fb28630285d4d49d09b7a013e9d0a6fd3ca55fe7715e611c91013b88c728ae"
+            api_key = "SUA API KEY"
             url = "https://www.virustotal.com/api/v3/files"
             headers = {"x-apikey": api_key}
             files = {"file": open(arquivo, "rb")}
@@ -89,7 +89,7 @@ class ScannerGUI:
         return resultado.stdout.decode()
         
     def buscar_analise(self, id_arquivo):
-        api_key = "a6fb28630285d4d49d09b7a013e9d0a6fd3ca55fe7715e611c91013b88c728ae"
+        api_key = "SUA API KEY"
         url = f"https://www.virustotal.com/api/v3/analyses/{id_arquivo}"
         headers = {"x-apikey": api_key}
         resposta = requests.get(url, headers=headers)
