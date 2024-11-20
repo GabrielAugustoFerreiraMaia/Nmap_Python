@@ -1,17 +1,175 @@
+
 import nmap
-def scan_target(ip):
-    nm = nmap.PortScanner()
-    nm.scan(ip, '1-1024')
-    for host in nm.all_hosts():
-        print(f"Host: {host} ({nm[host].hostname()})")
-        for proto in nm[host].all_protocols():
-            print(f"Protocol: {proto}")
-            lport = nm[host][proto].keys()
-            for port in sorted(lport):
-                print(f"Port: {port} \t State: {nm[host][proto][port]['state']}")
-def main():
-    ip = input("Digite o IP do host: ")
-    scan_target(ip)
+import tkinter as tk
+from tkinter import ttk
+import psutil
+import platform
+import csv
+import json
+import matplotlib.pyplot as plt
+import scapy
+import subprocess
+
+class ScannerGUI:
+    def __init__(self):
+        self.janela = tk.Tk()
+        self.janela.title("Scanner de Vulnerabilidades")
+
+        self.label_ip = tk.Label(self.janela, text="IP:")
+        self.label_ip.pack()
+
+        self.entry_ip = tk.Entry(self.janela)
+        self.entry_ip.pack()
+
+        self.botao_scan = tk.Button(self.janela, text="Scan", command=self.scan)
+        self.botao_scan.pack()
+
+        self.botao_malware = tk.Button(self.janela, text="Detecção de Malware", command=self.detecao_malware)
+        self.botao_malware.pack()
+
+        self.botao_trafego = tk.Button(self.janela, text="Análise de Tráfego", command=self.analise_trafego)
+        self.botao_trafego.pack()
+
+        self.botao_patch = tk.Button(self.janela, text="Verificação de Patch", command=self.verificacao_patch)
+        self.botao_patch.pack()
+
+        self.botao_dispositivos = tk.Button(self.janela, text="Descoberta de Dispositivos", command=self.descoberta_dispositivos)
+        self.botao_dispositivos.pack()
+
+        self.botao_mapeamento = tk.Button(self.janela, text="Mapeamento de Rede", command=self.mapeamento_rede)
+        self.botao_mapeamento.pack()
+
+        self.botao_protocolos = tk.Button(self.janela, text="Análise de Protocolos", command=self.analise_protocolos)
+        self.botao_protocolos.pack()
+
+        self.botao_relatorio = tk.Button(self.janela, text="Relatório Detalhado", command=self.relatorio_detalhado)
+        self.botao_relatorio.pack()
+
+        self.text_result = tk.Text(self.janela)
+        self.text_result.pack()
+
+    def scan(self):
+        ip = self.entry_ip.get()
+        nm = nmap.PortScanner()
+        nm.scan(ip, '1-1024')
+        resultado = ""
+        for host in nm.all_hosts():
+            resultado += f"Host: {host} ({nm[host].hostname()})\n"
+            for proto in nm[host].all_protocols():
+                resultado += f"Protocol: {proto}\n"
+                lport = nm[host][proto].keys()
+                for port in sorted(lport):
+                    resultado += f"Port: {port} \t State: {nm[host][proto][port]['state']}\n"
+        self.text_result.insert(tk.END, resultado)
+
+    def detecao_malware(self):
+        arquivo = "arquivo.exe"
+        resultado = self.scan_arquivo(arquivo)
+        self.text_result.insert(tk.END, resultado)
+        
+    def scan_arquivo(self, arquivo):
+        comando = f"clamdscan {arquivo}"
+        resultado = subprocess.run(comando, shell=True, stdout=subprocess.PIPE)
+        return resultado.stdout.decode()
+        
+    def buscar_analise(self, id_arquivo):
+        api_key = "SUA CHAVE"
+        url = f"https://www.virustotal.com/api/v3/analyses/{id_arquivo}"
+        headers = {"x-apikey": api_key}
+
+        resposta = requests.get(url, headers=headers)
+        if resposta.status_code == 200:
+            print("Análise encontrada!")
+            resultado = resposta.json()
+            self.text_result.insert(tk.END, json.dumps(resultado, indent=4))
+        else:
+            print("Erro ao buscar análise:", resposta.text)
+
+    def analise_trafego(self):
+        # Implementar análise de tráfego
+        trafego = psutil.net_io_counters()
+        resultado = f"Bytes recebidos: {trafego.bytes_recv}\n"
+        resultado += f"Bytes enviados: {trafego.bytes_sent}\n"
+        self.text_result.insert(tk.END, resultado)
+
+    def verificacao_patch(self):
+        # Implementar verificação de patch
+        sistema_operacional = platform.system()
+        versao = platform.release()
+        resultado = f"Sistema operacional: {sistema_operacional}\n"
+        resultado += f"Versão: {versao}\n"
+        self.text_result.insert(tk.END, resultado)
+
+    def descoberta_dispositivos(self):
+        # Implementar descoberta de dispositivos
+        nm = nmap.PortScanner()
+        nm.scan('192.168.1.0/24', '1-1024')
+        resultado = ""
+        for host in nm.all_hosts():
+            resultado += f"Host: {host} ({nm[host].hostname()})\n"
+        self.text_result.insert(tk.END, resultado)
+
+    def mapeamento_rede(self):
+        # Implementar mapeamento de rede
+        nm = nmap.PortScanner()
+        nm.scan('192.168.1.0/24', '1-1024')
+        hosts = nm.all_hosts()
+        self.text_result.insert(tk.END, 'Mapeamento de Rede:\n')
+        for host in hosts:
+            self.text_result.insert(tk.END, f'Host: {host} ({nm[host].hostname()})\n')
+
+    def analise_protocolos(self):
+        # Implementar análise de protocolos
+        pak = scapy.sniff(count=1)
+        proto = pak[0].protocol
+        self.text_result.insert(tk.END, f'Protocolo detectado: {proto}')
+
+    def relatorio_detalhado(self):
+        # Implementar relatório detalhado
+        resultado = self.text_result.get('1.0', tk.END)
+        with open('relatorio.txt', 'w') as arquivo:
+            arquivo.write(resultado)
+
+        # Gerar gráficos e estatísticas
+        nm = nmap.PortScanner()
+        nm.scan('192.168.1.0/24', '1-1024')
+        hosts = nm.all_hosts()
+        portas_abertas = []
+        portas_fechadas = []
+
+        for host in hosts:
+            for proto in nm[host].all_protocols():
+                lport = nm[host][proto].keys()
+                for port in sorted(lport):
+                    if nm[host][proto][port]['state'] == 'open':
+                        portas_abertas.append(port)
+                    else:
+                        portas_fechadas.append(port)
+
+        plt.bar(['Portas Abertas', 'Portas Fechadas'], [len(portas_abertas), len(portas_fechadas)])
+        plt.xlabel('Tipo de Porta')
+        plt.ylabel('Quantidade')
+        plt.title('Distribuição de Portas')
+        plt.show()
+
+        # Gráfico de pizza para mostrar a distribuição de vulnerabilidades
+        vulnerabilidades = []
+        for host in hosts:
+            for proto in nm[host].all_protocols():
+                lport = nm[host][proto].keys()
+                for port in sorted(lport):
+                    if nm[host][proto][port]['state'] == 'open':
+                        vulnerabilidades.append('Vulnerável')
+                    else:
+                        vulnerabilidades.append('Seguro')
+
+        plt.pie([vulnerabilidades.count('Vulnerável'), vulnerabilidades.count('Seguro')], labels=['Vulneráveis', 'Seguros'], autopct='%1.1f%%')
+        plt.title('Distribuição de Vulnerabilidades')
+        plt.show()
+
+    def run(self):
+        self.janela.mainloop()
 
 if __name__ == "__main__":
-    main()
+    scanner = ScannerGUI()
+    scanner.run()
