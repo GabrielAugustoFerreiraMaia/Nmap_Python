@@ -2,13 +2,17 @@
 import nmap
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 import psutil
 import platform
 import csv
 import json
 import matplotlib.pyplot as plt
-import scapy
+from scapy.all import sniff
+from scapy.layers.inet import IP
 import subprocess
+import requests
+
 
 class ScannerGUI:
     def __init__(self):
@@ -63,9 +67,21 @@ class ScannerGUI:
         self.text_result.insert(tk.END, resultado)
 
     def detecao_malware(self):
-        arquivo = "arquivo.exe"
-        resultado = self.scan_arquivo(arquivo)
-        self.text_result.insert(tk.END, resultado)
+        arquivo = filedialog.askopenfilename(title="Selecione o arquivo")
+        if arquivo:
+            api_key = "a6fb28630285d4d49d09b7a013e9d0a6fd3ca55fe7715e611c91013b88c728ae"
+            url = "https://www.virustotal.com/api/v3/files"
+            headers = {"x-apikey": api_key}
+            files = {"file": open(arquivo, "rb")}
+            resposta = requests.post(url, headers=headers, files=files)
+            if resposta.status_code == 200:
+                resultado = resposta.json()
+                id_arquivo = resultado["data"]["id"]
+                self.buscar_analise(id_arquivo)
+            else:
+                self.text_result.insert(tk.END, "Erro ao enviar arquivo")
+        else:
+            self.text_result.insert(tk.END, "Nenhum arquivo selecionado")
         
     def scan_arquivo(self, arquivo):
         comando = f"clamdscan {arquivo}"
@@ -73,17 +89,15 @@ class ScannerGUI:
         return resultado.stdout.decode()
         
     def buscar_analise(self, id_arquivo):
-        api_key = "SUA CHAVE"
+        api_key = "a6fb28630285d4d49d09b7a013e9d0a6fd3ca55fe7715e611c91013b88c728ae"
         url = f"https://www.virustotal.com/api/v3/analyses/{id_arquivo}"
         headers = {"x-apikey": api_key}
-
         resposta = requests.get(url, headers=headers)
         if resposta.status_code == 200:
-            print("Análise encontrada!")
             resultado = resposta.json()
             self.text_result.insert(tk.END, json.dumps(resultado, indent=4))
         else:
-            print("Erro ao buscar análise:", resposta.text)
+            self.text_result.insert(tk.END, "Erro ao buscar análise")
 
     def analise_trafego(self):
         # Implementar análise de tráfego
@@ -119,10 +133,14 @@ class ScannerGUI:
             self.text_result.insert(tk.END, f'Host: {host} ({nm[host].hostname()})\n')
 
     def analise_protocolos(self):
-        # Implementar análise de protocolos
-        pak = scapy.sniff(count=1)
-        proto = pak[0].protocol
-        self.text_result.insert(tk.END, f'Protocolo detectado: {proto}')
+        pak = sniff(count=1)
+        if pak[0].haslayer(IP):
+            proto = pak[0][IP].proto
+            protocolos = {1: 'ICMP', 2: 'IGMP', 6: 'TCP', 17: 'UDP'}
+            nome_proto = protocolos.get(proto, 'Desconhecido')
+            self.text_result.insert(tk.END, f'Protocolo detectado: {nome_proto}')
+        else:
+            self.text_result.insert(tk.END, 'Protocolo desconhecido')
 
     def relatorio_detalhado(self):
         # Implementar relatório detalhado
