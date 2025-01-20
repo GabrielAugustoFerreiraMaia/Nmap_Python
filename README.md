@@ -1,41 +1,82 @@
-Scanner de Vulnerabilidades
+# Scanner de Vulnerabilidades
 
-Descrição
+Este projeto é uma aplicação gráfica desenvolvida em Python que permite realizar diversas análises de segurança em redes e sistemas. A interface gráfica foi criada usando a biblioteca `tkinter`, e várias funcionalidades foram implementadas para ajudar na identificação de vulnerabilidades, detecção de malware, análise de tráfego e muito mais.
 
-Este projeto é um scanner de vulnerabilidades desenvolvido em Python, utilizando bibliotecas como nmap, scapy e clamav. O scanner é capaz de detectar vulnerabilidades em redes e sistemas, além de realizar análise de malware.
+## Funcionalidades
 
-Instalação
+1. **Scan de portas**
+   - Realiza a varredura de portas abertas em um IP informado.
+   - Utiliza a biblioteca `nmap` para realizar o scan.
 
-Para instalar as dependências do projeto, execute os seguintes comandos:
+2. **Detecção de Malware**
+   - Faz o upload de arquivos para análise no VirusTotal.
+   - Realiza varredura local de arquivos usando o `clamdscan`.
 
+3. **Análise de Tráfego**
+   - Exibe estatísticas sobre bytes recebidos e enviados.
+   - Utiliza a biblioteca `psutil`.
 
-bash
-pip install nmap
-pip install scapy
-pip install clamav
+4. **Verificação de Patch**
+   - Exibe informações sobre o sistema operacional e sua versão.
 
+5. **Descoberta de Dispositivos**
+   - Realiza uma varredura em uma rede para identificar dispositivos conectados.
 
-Uso
+6. **Mapeamento de Rede**
+   - Mostra informações detalhadas dos hosts na rede.
 
-Para utilizar o scanner, execute o seguinte comando:
+7. **Análise de Protocolos**
+   - Detecta pacotes de rede e identifica o protocolo usado.
 
+8. **Relatório Detalhado**
+   - Gera um relatório completo em formato de texto.
+   - Cria gráficos para visualização de dados sobre portas e vulnerabilidades.
 
-bash
-python (link unavailable)
+## Requisitos
 
+Certifique-se de ter as seguintes dependências instaladas:
 
-O scanner oferece as seguintes opções:
+- Python 3.8 ou superior
+- Bibliotecas Python:
+  - `nmap`
+  - `tkinter`
+  - `psutil`
+  - `platform`
+  - `csv`
+  - `json`
+  - `matplotlib`
+  - `scapy`
+  - `requests`
+- Ferramentas externas:
+  - `clamdscan`
+  - `Nmap`
 
-- -m : Detecção de malware
-- -v : Análise de vulnerabilidades
-- -n : Mapeamento de rede
-- -p : Análise de protocolos
-- -r : Relatório detalhado
+Para instalar as dependências Python, use:
+```bash
+pip install python-nmap psutil matplotlib scapy requests
+```
 
-Contribuição
+## Como usar  
+
+Clone este repositório:  
+
+```bash
+git clone https://github.com/seu-usuario/scanner-vulnerabilidades.git  
+cd scanner-vulnerabilidades  
+```
+Instale as dependências:
+```bash
+pip install -r requirements.txt
+```
+Execute o arquivo principal:
+```bash
+python scanner.py  
+```
+
+## Contribuição
 
 Contribuições são bem-vindas! Para contribuir, faça um fork do repositório e envie uma pull request.
 
-Licença
+## Licença
 
 Este projeto é licenciado sob a licença MIT.
