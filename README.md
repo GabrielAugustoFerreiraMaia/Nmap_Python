@@ -61,7 +61,7 @@ pip install python-nmap psutil matplotlib scapy requests
 Clone este repositório:  
 
 ```bash
-git clone https://github.com/seu-usuario/scanner-vulnerabilidades.git  
+git clone https://github.com/GabrielAugustoFerreiraMaia/Nmap_Python
 cd scanner-vulnerabilidades  
 ```
 Instale as dependências:
